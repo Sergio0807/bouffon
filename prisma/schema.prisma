@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Group {
+  id           String    @id @default(cuid())
+  name         String
+  inviteCode   String    @unique
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  users        User[]
+  items        Item[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  icon          String?  @default("😄")
+  role          Role     @default(USER)
+  groups        Group[]
+  createdItems  Item[]   @relation("createdBy")
+  checkedItems  Item[]   @relation("checkedBy")
+  createdAt     DateTime @default(now())
+  sessions      Session[]
+}
+
+model Session {
+  id        String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Item {
+  id              String    @id @default(cuid())
+  name            String
+  checked         Boolean   @default(false)
+  checkedAt       DateTime?
+  price           Float?
+  group           Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId         String
+  user            User      @relation("createdBy", fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  checkedBy       User?     @relation("checkedBy", fields: [checkedById], references: [id], onDelete: SetNull)
+  checkedById     String?
+  category        Category  @relation(fields: [categoryId], references: [id])
+  categoryId      String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Category {
+  id    String @id @default(cuid())
+  name  String @unique
+  icon  String @default("📦")
+  items Item[]
+}
