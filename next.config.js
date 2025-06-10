@@ -5,13 +5,7 @@ const nextConfig = {
       enabled: true
     },
   },
-  typescript: {
-    ignoreBuildErrors: true
-  },
-  eslint: {
-    ignoreDuringBuilds: true
-  },
-  swcMinify: true
+  output: 'standalone'
 }
 
 module.exports = nextConfig
